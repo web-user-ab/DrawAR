@@ -6,14 +6,15 @@ let controller;
 let drawingPoints = [];
 let line;
 
-init();
-animate();
+document.getElementById('startAR').addEventListener('click', () => {
+  startAR();
+  document.getElementById('startAR').style.display = 'none';
+});
 
-function init() {
+function startAR() {
   const container = document.body;
 
   scene = new THREE.Scene();
-
   camera = new THREE.PerspectiveCamera();
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -21,7 +22,10 @@ function init() {
   renderer.xr.enabled = true;
   container.appendChild(renderer.domElement);
 
-  document.body.appendChild(ARButton.createButton(renderer, { requiredFeatures: ['hit-test'] }));
+  // Request camera + AR permission through XRSession
+  document.body.appendChild(ARButton.createButton(renderer, {
+    requiredFeatures: ['hit-test']
+  }));
 
   const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
   light.position.set(0.5, 1, 0.25);
@@ -30,6 +34,8 @@ function init() {
   controller = renderer.xr.getController(0);
   controller.addEventListener('select', onSelect);
   scene.add(controller);
+
+  animate();
 }
 
 function onSelect() {
@@ -39,9 +45,8 @@ function onSelect() {
 
   if (drawingPoints.length > 1) {
     if (line) scene.remove(line);
-
     const geometry = new THREE.BufferGeometry().setFromPoints(drawingPoints);
-    const material = new THREE.LineBasicMaterial({ color: 0xffa500, linewidth: 5 });
+    const material = new THREE.LineBasicMaterial({ color: 0xffa500 });
     line = new THREE.Line(geometry, material);
     scene.add(line);
   }
